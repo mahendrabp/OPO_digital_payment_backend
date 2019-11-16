@@ -4,7 +4,7 @@
 const mysql = require('mysql')
 
 // import required files
-const config = require('./configs')
+const config = require('./config')
 
 // init object db connection
 const connection = mysql.createConnection(config.database.mysql)
