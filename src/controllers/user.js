@@ -19,6 +19,61 @@ console.log('controller'); // where I am
 
 module.exports = {
 
+  update: function(request, response) {
+    const userId = request.params.userId;
+    const updatedData = {};
+    let nUpdate = 0
+    for (o in request.body) {
+      nUpdate += 1
+      if (Object.hasOwnProperty.call(request.body, o)) {
+        if (o === 'securityCode') {
+          updatedData['security_code'] = request.body[o];
+        } else {
+          updatedData[o] = request.body[o];
+        }
+      }
+    }
+    // updatedData['date_updated'] = moment().format().split('+')[0];
+
+    // there is no update data on body
+    if (nUpdate <= 0) {
+      response.status(200).json({
+        status: 200,
+        error: false,
+        message: 'Update nothing',
+        result: {
+          ...updatedData,
+          id: userId,
+        }
+      });
+    }
+
+    userModels.updateUser(updatedData, userId)
+    .then( function(result) {
+      if (result.error) {
+        response.status(400).json(result);
+      }
+      response.status(200).json({
+        status: 200,
+        error: false,
+        message: 'User was updated successfully',
+        result: {
+          ...updatedData,
+          id: userId,
+        }
+      });
+    })
+    .catch( function(error) {
+      console.log(error);
+      response.status(500).json({
+        status: 500,
+        error: true,
+        message: 'Internal server error',
+        result: {},
+      });
+    });
+  },
+
   login1: function(request, response) {
 
     // is login data valid

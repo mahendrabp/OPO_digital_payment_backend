@@ -9,6 +9,35 @@ console.log('model'); // where I am
 
 module.exports = {
 
+  updateUser: function(updateData, userId) {
+    return new Promise( function(resolve, reject) {
+      const queryId = `SELECT * FROM users WHERE id = '${userId}'`
+      connection.query(queryId, [updateData], function(error, result) {
+        if (!error) {
+          if (result.length === 0) {
+            resolve({
+              status: 400,
+              error: true,
+              message: 'User was not found',
+              result: {},
+            });
+          } else {
+            const queryUpdate = `UPDATE users SET ? WHERE id = '${userId}'`
+            connection.query(queryUpdate, [updateData], function(error, result) {
+              if (!error) {
+                resolve(result);
+              } else {
+                reject(error);
+              }
+            });
+          }
+        } else {
+          reject(error);
+        }
+      });
+    });
+  },
+
   login1: function(data_login) {
     return new Promise( function(resolve, reject) {
       const query = 'SELECT * FROM users WHERE phone = ?'

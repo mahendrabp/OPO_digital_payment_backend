@@ -7,9 +7,13 @@ const {check} = require('express-validator');
 
 // import required files
 const userController = require('../controllers/user');
+// const isAuthHelper = require('../helpers/isAuth');
+
 console.log('route'); // where I am
 
 Route
+		.patch('/edit/:userId', userController.update)
+
     .post('/login/step1', [check('phone').isMobilePhone()], userController.login1)
     .post('/login/step2', [check('securityCode').isNumeric()], userController.login2)
 
