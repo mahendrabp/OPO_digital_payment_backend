@@ -10,9 +10,11 @@ const userController = require('../controllers/user');
 console.log('route'); // where I am
 
 Route
-    .post('/login', [check('phone').isMobilePhone(), check('securityCode').isNumeric()],
-    	userController.login)
-    .post('/signup', [check('name').matches(/^[A-Za-z\/\s\.,'-]+$/).isLength({ min:3 }), check('phone').isMobilePhone(),
-    	check('email').isEmail(), check('securityCode').isNumeric()], userController.signup);
+    .post('/login/step1', [check('phone').isMobilePhone()], userController.login)
+    .post('/login/step2', [check('securityCode').isNumeric()], userController.login2)
+
+    .post('/signup/step1', [check('name').matches(/^[A-Za-z\/\s\.,'-]+$/).isLength({ min:3 }),
+    	check('phone').isMobilePhone(), check('email').isEmail()], userController.signup)
+    .post('/signup/step2', [check('securityCode').isNumeric()], userController.signup2);
 
 module.exports = Route;

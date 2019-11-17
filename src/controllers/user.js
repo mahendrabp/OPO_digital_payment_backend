@@ -7,6 +7,11 @@ const {validationResult} = require('express-validator'); // for login and signup
 const uuidv4 = require('uuid/v4'); // for signup
 const moment = require('moment'); // for signup
 
+// // OTP
+// const authy = require('authy-client');
+// // import { Client } from 'authy-client';
+// const client = new authy.Client({ key: 'foo' });
+
 // import required files
 const userModels = require('../models/user');
 
@@ -79,7 +84,126 @@ module.exports = {
         });
   },
 
+  login2: function(request, response) {
+
+    // is login data valid
+    const errors = validationResult(request);    
+    if (!errors.isEmpty()) {
+      return response.status(400).json({
+        status: 400,
+        error: true,
+        message: 'Invalid input',
+        result: errors.array(),
+      });
+    }
+
+    const phone = request.body.phone;
+    const securityCode = request.body.securityCode;
+
+    // if (name == null || password == null) {
+    //   response.json({'error': 'name or password cannot be empty'});
+    // }
+
+    const data_login = {
+      'phone': phone,
+      'securityCode': securityCode,
+    };
+
+    userModels.login(data_login)
+        .then( function(result) {
+          if (result.error) {
+            response.status(400).json(result);
+          }
+
+          compareSecurityCode = bcrypt.compareSync(data_login.securityCode, result.hash);
+
+          if (!compareSecurityCode) {
+            response.status(400).json({
+              status: 400,
+              error: true,
+              message: 'Security Code salah. Mohon untuk mencoba kembali',
+              result: {},
+            });
+          }
+
+          // generate token for logged in user
+          const token = 'hello00opo ' + jwt.sign({data_login}, jwtSecret) //, {expiresIn: 3600}); // per unit second
+
+          response.status(201).json({
+            status: 201,
+            error: false,
+            message: 'Login as ' + result.name,
+            result: {
+              authorization: token,
+            },
+          });
+        })
+        .catch( function(error) {
+          console.log(error);
+          response.status(500).json({
+            status: 500,
+            error: true,
+            message: 'Internal server error',
+            result: {},
+          });
+        });
+  },
+
   signup: function(request, response) {
+    // get error from validation
+    const errors = validationResult(request);
+
+    // is name, password, email valid
+    if (!errors.isEmpty()) {
+      return response.status(400).json({
+        status: 400,
+        error: true,
+        message: 'Invalid input',
+        result: errors.array(),
+      });
+    }
+
+    // if valid
+    const name = request.body.name;
+    const phone = request.body.phone;
+    const email = request.body.email;
+    // const securityCode = request.body.securityCode
+
+    let otp = ''
+    for (i=1; i<6; i++){
+      var a = Math.ceil(Math.random()*10)
+      console.log(a.toString())
+      otp = otp + a
+    }
+
+    // client.registerUser({
+    //   countryCode: 'ID',
+    //   email,
+    //   phone
+    // }).then(function(response) {
+    //   return response.user.id;
+    // }).then(function(authyId) {
+    //   return client.requestSms({ authyId: authyId });
+    // }).then(function(response) {
+    //   console.log(`SMS requested to ${response.cellphone}`);
+    // });
+
+    const data_signup = {
+      name,
+      phone,
+      email,
+      otp
+    }
+
+    response.status(201).json({
+      status: 201,
+      error: false,
+      message: 'Your registration step 1 was successful',
+      result: data_signup,
+    });
+  },
+
+  signup2: function(request, response) {
     // get error from validation
     const errors = validationResult(request);
 
