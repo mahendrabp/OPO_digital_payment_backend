@@ -1,6 +1,7 @@
 // import required dependencies
 // const bcrypt = require('bcrypt');
 // const jwt = require('jsonwebtoken');
+const uuidv4 = require('uuid/v4'); // for balances id
 
 // import required files
 const connection = require('../config/db');
@@ -8,64 +9,105 @@ console.log('model'); // where I am
 
 module.exports = {
 
-  login: function(data_login) {
+  login1: function(data_login) {
     return new Promise( function(resolve, reject) {
       const query = 'SELECT * FROM users WHERE phone = ?'
       connection.query(query, data_login.phone, function(error, result) {
-            if (!error) {
-              if (result.length == 0) {
-                resolve({
-                  status: 400,
-                  error: true,
-                  message: 'Phone was not registered',
-                  result: {},
-                });
-              } else {
-                const hash = result[0].security_code;
-                const name = result[0].name;
-                const data = {
-                  'name': name,
-                  'hash': hash,
-                };
+        if (!error) {
+          if (result.length == 0) {
+            resolve({
+              status: 400,
+              error: true,
+              message: 'Phone was not registered',
+              result: {},
+            })
+          } else {
+            resolve(data_login)
+          }
+        } else {
+          reject(error)
+        }
+      })
+    })
+  },
 
-                resolve(data);
-              }
-            } else {
-              reject(error);
-            }
-          });
+  login2: function(data_login) {
+    return new Promise( function(resolve, reject) {
+      const query = 'SELECT * FROM users INNER JOIN balances ON users.id = balances.user_id WHERE phone = ?'
+      connection.query(query, data_login.phone, function(error, result) {
+        if (!error) {
+          // const hash = result[0].security_code;
+          // const name = result[0].name;
+          // const data = {
+          //   'name': name,
+          //   'hash': hash,
+          // };
+          // resolve(data);
+          resolve(result[0])
+        } else {
+          reject(error);
+        }
+      });
     });
   },
 
-  signup: function(data_signup) {
+  signup1: function(data_signup) {
     return new Promise( function(resolve, reject) {
       const queryPhone = 'SELECT * FROM users WHERE phone = ?'
       connection.query(queryPhone, data_signup.phone, function(error, result) {
-            if (!error) {
-              if (result.length > 0) {
-                // reject(new Error('username was used by other'));
-                resolve({
-                  status: 400,
-                  error: true,
-                  message: 'Phone was already used by other',
-                  result: {},
-                });
-              } else {
-                const queryInsert = 'INSERT INTO users SET ?'
-                connection.query(queryInsert, data_signup, function(error, result) {
-                      if (!error) {
-                        resolve(result);
-                      } else {
-                        reject(error);
-                      }
-                    }
-                );
-              }
-            } else {
-              reject(error);
-            }
+        if (!error) {
+          if (result.length > 0) { // switch to login
+            resolve({
+              status: 201,
+              error: false,
+              message: 'Phone was already used by other',
+              result: {
+                phoneAlready: true,
+              },
+            });
+          } else {
+            resolve({
+              status: 201,
+              error: false,
+              message: 'Phone was not already used by other',
+              result: {
+                phoneAlready: false,
+              },
+            });
           }
-      );
+        } else {
+          reject(error);
+        }
+      });
     });
   },
+
+  signup2: function(data_signup) {
+    return new Promise( function(resolve, reject) {
+      const queryInsert = 'INSERT INTO users SET ?'
+      connection.query(queryInsert, data_signup, function(error, result) {
+        if (!error) {
+          const id = uuidv4();
+          const init_balances = {
+            id,
+            'opo_cash': 0,
+            'opo_point': 0,
+            'user_id': data_signup.id,
+          }
+          const queryBalances = 'INSERT INTO balances SET ?'
+          connection.query(queryBalances, init_balances, function(error, result) {
+            if (!error) {
+              resolve(result);
+            } else {
+              reject(error)
+            }
+          });
+          // resolve(result);
+        } else {
+          reject(error);
+        }
+      });
+    });
+  },
+
 };

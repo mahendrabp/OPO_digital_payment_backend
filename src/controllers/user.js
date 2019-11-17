@@ -19,7 +19,7 @@ console.log('controller'); // where I am
 
 module.exports = {
 
-  login: function(request, response) {
+  login1: function(request, response) {
 
     // is login data valid
     const errors = validationResult(request);    
@@ -33,55 +33,42 @@ module.exports = {
     }
 
     const phone = request.body.phone;
-    const securityCode = request.body.securityCode;
-
-    // if (name == null || password == null) {
-    //   response.json({'error': 'name or password cannot be empty'});
-    //     }
+    // const securityCode = request.body.securityCode;
 
     const data_login = {
-      'phone': phone,
-      'securityCode': securityCode,
+      phone,
     };
 
-    userModels.login(data_login)
-        .then( function(result) {
-          if (result.error) {
-            response.status(400).json(result);
-          }
-
-          compareSecurityCode = bcrypt.compareSync(data_login.securityCode, result.hash);
-
-          if (!compareSecurityCode) {
-            response.status(400).json({
-              status: 400,
-              error: true,
-              message: 'Security Code salah. Mohon untuk mencoba kembali',
-              result: {},
-            });
-          }
-
-          // generate token for logged in user
-          const token = 'hello00opo ' + jwt.sign({data_login}, jwtSecret) //, {expiresIn: 3600}); // per unit second
-
-          response.status(201).json({
-            status: 201,
-            error: false,
-            message: 'Login as ' + result.name,
-            result: {
-              authorization: token,
-            },
-          });
-        })
-        .catch( function(error) {
-          console.log(error);
-          response.status(500).json({
-            status: 500,
-            error: true,
-            message: 'Internal server error',
-            result: {},
-          });
-        });
+    userModels.login1(data_login)
+    .then( function(result) {
+      if (result.error) {
+        response.status(400).json(result);
+      }
+      let otp = ''
+      for (i=1; i<5; i++){
+        var a = Math.floor(Math.random()*10)
+        // console.log(a.toString())
+        otp = otp + a
+      }
+      response.status(201).json({
+        status: 201,
+        error: false,
+        message: 'Your login step 1 was successful', //'Login as ' + result.name,
+        result: {
+          ...data_login,
+          otp,
+        }
+      });
+    })
+    .catch( function(error) {
+      console.log(error);
+      response.status(500).json({
+        status: 500,
+        error: true,
+        message: 'Internal server error',
+        result: {},
+      });
+    })
   },
 
   login2: function(request, response) {
@@ -100,56 +87,51 @@ module.exports = {
     const phone = request.body.phone;
     const securityCode = request.body.securityCode;
 
-    // if (name == null || password == null) {
-    //   response.json({'error': 'name or password cannot be empty'});
-    // }
-
     const data_login = {
       'phone': phone,
       'securityCode': securityCode,
     };
 
-    userModels.login(data_login)
-        .then( function(result) {
-          if (result.error) {
-            response.status(400).json(result);
-          }
+    userModels.login2(data_login)
+    .then( function(result) {
 
-          compareSecurityCode = bcrypt.compareSync(data_login.securityCode, result.hash);
-
-          if (!compareSecurityCode) {
-            response.status(400).json({
-              status: 400,
-              error: true,
-              message: 'Security Code salah. Mohon untuk mencoba kembali',
-              result: {},
-            });
-          }
-
-          // generate token for logged in user
-          const token = 'hello00opo ' + jwt.sign({data_login}, jwtSecret) //, {expiresIn: 3600}); // per unit second
-
-          response.status(201).json({
-            status: 201,
-            error: false,
-            message: 'Login as ' + result.name,
-            result: {
-              authorization: token,
-            },
-          });
-        })
-        .catch( function(error) {
-          console.log(error);
-          response.status(500).json({
-            status: 500,
-            error: true,
-            message: 'Internal server error',
-            result: {},
-          });
+      compareSecurityCode = bcrypt.compareSync(data_login.securityCode, result.security_code);
+      if (!compareSecurityCode) {
+        response.status(400).json({
+          status: 400,
+          error: true,
+          message: 'Security Code salah. Mohon untuk mencoba kembali',
+          result: {},
         });
+      }
+
+      // generate token for logged in user
+      const token = 'hello00opo ' + jwt.sign({data_login}, jwtSecret) //, {expiresIn: 3600}); // per unit second
+
+      response.status(201).json({
+        status: 201,
+        error: false,
+        message: 'Login as ' + result.name,
+        result: {
+          ...result,
+          id: '',
+          security_code: '',
+          authorization: token,
+        },
+      });
+    })
+    .catch( function(error) {
+      console.log(error);
+      response.status(500).json({
+        status: 500,
+        error: true,
+        message: 'Internal server error',
+        result: {},
+      });
+    });
   },
 
-  signup: function(request, response) {
+  signup1: function(request, response) {
     // get error from validation
     const errors = validationResult(request);
 
@@ -168,13 +150,55 @@ module.exports = {
     const phone = request.body.phone;
     const email = request.body.email;
     // const securityCode = request.body.securityCode
-
-    let otp = ''
-    for (i=1; i<6; i++){
-      var a = Math.ceil(Math.random()*10)
-      console.log(a.toString())
-      otp = otp + a
+    const data_signup = {
+      name,
+      phone,
+      email,
     }
+
+    userModels.signup1(data_signup)
+    .then( function(result) {
+      let otp = ''
+      for (i=1; i<5; i++){
+        var a = Math.floor(Math.random()*10)
+        // console.log(a.toString())
+        otp = otp + a
+      }
+      if (result.result.phoneAlready){
+        // go login
+        response.status(201).json({
+          status: 201,
+          error: false,
+          message: result.message, //'Login as ' + result.name,
+          result: {
+            ...data_signup,
+            otp,
+            'phoneAlready': result.result.phoneAlready,
+          }
+        });
+      } else {
+        // continue signup
+        response.status(201).json({
+          status: 201,
+          error: false,
+          message: 'Your registration step 1 was successful',
+          result: {
+            ...data_signup,
+            otp,
+            'phoneAlready': result.result.phoneAlready,
+          }
+        });
+      }
+    })
+    .catch( function(error) {
+      console.log(error);
+      response.status(500).json({
+        status: 500,
+        error: true,
+        message: 'Internal server error',
+        result: {},
+      });
+    })
 
     // client.registerUser({
     //   countryCode: 'ID',
@@ -187,20 +211,6 @@ module.exports = {
     // }).then(function(response) {
     //   console.log(`SMS requested to ${response.cellphone}`);
     // });
-
-    const data_signup = {
-      name,
-      phone,
-      email,
-      otp
-    }
-
-    response.status(201).json({
-      status: 201,
-      error: false,
-      message: 'Your registration step 1 was successful',
-      result: data_signup,
-    });
   },
 
   signup2: function(request, response) {
@@ -254,29 +264,38 @@ module.exports = {
           'created_at': moment().format().split('+')[0],
         };
 
-        userModels.signup(data_signup)
-            .then( function(result) {
-              if (result.error) {
-                response.status(400).json(result);
-              }
-              response.status(201).json({
-                status: 201,
-                error: false,
-                message: 'Your registration was successful',
-                result: {
-                  name: data_signup.name,
-                },
-              });
-            })
-            .catch( function(error) {
-              console.log(error);
-              response.status(500).json({
-                status: 500,
-                error: true,
-                message: 'Internal server error',
-                result: {},
-              });
-            });
+        userModels.signup2(data_signup)
+        .then( function(result) {
+          const data_login = {
+            'phone': data_signup.phone,
+            'securityCode': securityCode,
+          };
+          const token = 'hello00opo ' + jwt.sign({data_login}, jwtSecret) //, {expiresIn: 3600}); // per unit second
+          response.status(201).json({
+            status: 201,
+            error: false,
+            message: 'Your registration step 2 was successful, done. Direcetly login as ' + data_signup.name,
+            result: {
+              ...data_signup,
+              'security_code': '',
+              'photo': null,
+              'opo_cash': 0,
+              'opo_point': 0,
+              'user_id': data_signup.id,
+              id: '',
+              authorization: token,
+            },
+          });
+        })
+        .catch( function(error) {
+          console.log(error);
+          response.status(500).json({
+            status: 500,
+            error: true,
+            message: 'Internal server error',
+            result: {},
+          });
+        });
       });
     });
   },
