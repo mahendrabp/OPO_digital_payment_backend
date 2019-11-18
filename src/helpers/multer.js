@@ -1,7 +1,7 @@
 const multer = require('multer');
 const path = require('path');
 
-const storageMulter = multer.diskStorage({
+const storage = multer.diskStorage({
   destination: (req, file, callback) => {
     callback(null, './public/media/img/photo_profile');
   },
@@ -14,9 +14,10 @@ const fileFilter = (req, file, callback) => {
   const ext = path.extname(file.originalname);
   if (ext !== '.png' && ext !== '.jpg' && ext !== '.svg' && ext !== '.jpeg') {
     callback(null, false);
-    return;
+    callback(new Error('Allowed only .png, .jpg, .jpeg and .gif'));
+  } else {
+    callback(null, true);
   }
-  callback(null, true);
 };
 
-module.exports = multer({storage: storageMulter, fileFilter});
+module.exports = multer({storage: storage, fileFilter});
