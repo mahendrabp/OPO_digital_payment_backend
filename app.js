@@ -18,11 +18,11 @@ app.use(cors());
 app.use(logger('dev'));
 
 // use files
-const port = config.port;
+const { port } = config;
 app.use('/', routerNav);
 
 // listening port
-app.listen(port, function() {
+app.listen(port, () => {
   console.log(`\n Server listening on port ${port} \n`);
 });
 

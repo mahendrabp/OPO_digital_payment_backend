@@ -18,7 +18,6 @@ const balanceModels = require('../models/balance');
 console.log('controller'); // where I am
 
 module.exports = {
-
   transfer: function(request, response) {
     // get error from validation
     const errors = validationResult(request);
@@ -38,35 +37,36 @@ module.exports = {
     const phoneTo = request.body.phoneTo;
     const nominal = request.body.nominal;
 
-    balanceModels.isEnough(userId, nominal)
-    .then( function(result) {
-      if (result.error) {
-        response.status(400).json(result);
-      } else {
-        balanceModels.transfer(userId, nominal, phoneTo)
-        .then( function(result) {
-          response.status(200).json(result)
-        })
-        .catch( function(error) {
-          console.log(error);
-          response.status(500).json({
-            status: 500,
-            error: true,
-            message: 'Internal server error',
-            result: {},
-          });
-        })
-      }
-    })
-    .catch( function(error) {
-      console.log(error);
-      response.status(500).json({
-        status: 500,
-        error: true,
-        message: 'Internal server error',
-        result: {},
+    balanceModels
+      .isEnough(userId, nominal)
+      .then(function(result) {
+        if (result.error) {
+          response.status(400).json(result);
+        } else {
+          balanceModels
+            .transfer(userId, nominal, phoneTo)
+            .then(function(result) {
+              response.status(200).json(result);
+            })
+            .catch(function(error) {
+              console.log(error);
+              response.status(500).json({
+                status: 500,
+                error: true,
+                message: 'Internal server error',
+                result: {},
+              });
+            });
+        }
+      })
+      .catch(function(error) {
+        console.log(error);
+        response.status(500).json({
+          status: 500,
+          error: true,
+          message: 'Internal server error',
+          result: {},
+        });
       });
-    })
   },
-
 };
