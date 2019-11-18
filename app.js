@@ -1,22 +1,29 @@
+// import required dependencies
 const express = require('express');
-const bodyParser = require('body-parser');
-const passport = require('passport');
 const cors = require('cors');
-const morgan = require('morgan');
+const bodyParser = require('body-parser');
+const logger = require('morgan');
 
-// Main App
+// import required files
+const config = require('./src/config/config');
+const routerNav = require('./src/index');
+
+// main app
 const app = express();
 
-// Body Parser Middleware
-app.use(bodyParser.urlencoded({ extended: true }));
+// use dependencies
 app.use(bodyParser.json());
-
-// Passport Middleware
-app.use(passport.initialize());
-
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cors());
-// Port
-const port = process.env.PORT || 5000;
+app.use(logger('dev'));
 
-// Connect to Server
-app.listen(port, () => console.log(`Server is running on port ${port}`));
+// use files
+const port = config.port;
+app.use('/', routerNav);
+
+// listening port
+app.listen(port, function() {
+  console.log(`\n Server listening on port ${port} \n`);
+});
+
+module.exports = app;
