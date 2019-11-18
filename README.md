@@ -26,9 +26,8 @@
 - NodeJS
 - MySQL
 - ExpressJS
-- Sequelize ORM
 - JWT
-- Joi Validator
+- Express Validator
 - Redis
 
 ## Build Setup
