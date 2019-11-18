@@ -20,7 +20,7 @@ module.exports = {
               status: 400,
               error: true,
               message: 'User that want to transfer was not found',
-              result: {}
+              result: {},
             });
           } else {
             if (result[0].opo_cash < nominal) {
@@ -28,7 +28,7 @@ module.exports = {
                 status: 400,
                 error: true,
                 message: 'Your opo cash was not enough',
-                result: {}
+                result: {},
               });
             } else {
               resolve(result);
@@ -51,7 +51,7 @@ module.exports = {
               status: 400,
               error: true,
               message: 'User that want to be transfered was not found',
-              result: {}
+              result: {},
             });
           } else {
             const userIdTo = result[0].id;
@@ -68,16 +68,20 @@ module.exports = {
                       nominal: parseInt(nominal),
                       date: moment()
                         .format()
-                        .split('+')[0]
+                        .split('+')[0],
                     };
                     const queryTransfer = `INSERT INTO transfers SET ?`;
-                    connection.query(queryTransfer, dataTransfer, function(error, result) {
+                    connection.query(queryTransfer, dataTransfer, function(
+                      error,
+                      result,
+                    ) {
                       if (!error) {
                         resolve({
                           status: 200,
                           error: false,
-                          message: 'Transfer to ' + phoneTo + ' was done successfully',
-                          result: dataTransfer
+                          message:
+                            'Transfer to ' + phoneTo + ' was done successfully',
+                          result: dataTransfer,
                         });
                       } else {
                         reject(error);
@@ -97,5 +101,5 @@ module.exports = {
         }
       });
     });
-  }
+  },
 };
