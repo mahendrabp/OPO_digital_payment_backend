@@ -147,4 +147,46 @@ module.exports = {
 			})
 		})
 	},
+
+	readDealByCate: function(request, response) {
+		const { cateId } = request.params
+		dealModels.readDealByCate(cateId)
+		.then(result => {
+			response.status(200).json({
+				status: 200,
+				error: false,
+				message: 'Get deal with category id: ' + cateId + ' successfully',
+				result,
+			})
+		})
+		.catch(error => {
+			response.status(404).json({
+				status: 404,
+				error: true,
+				message: 'Can not find deal with category id: ' + cateId,
+				result: error,
+			})
+		})
+	},
+
+	readDealByType: function(request, response) {
+		const { getType } = request.params
+		dealModels.readDealByType(getType)
+		.then(result => {
+			response.status(200).json({
+				status: 200,
+				error: false,
+				message: 'Get deal with type ' + getType + ' successfully',
+				result,
+			})
+		})
+		.catch(error => {
+			response.status(404).json({
+				status: 404,
+				error: true,
+				message: 'Can not find deal with type ' + getType,
+				result: error,
+			})
+		})
+	}
 }
