@@ -10,6 +10,8 @@ const dealController = require('../controllers/deal');
 // const isAuthHelper = require('../helpers/isAuth');
 
 Route
+		.get('/category/:cateId', dealController.readDealByCate)
+		.get('/type/:getType', dealController.readDealByType)
 		.get('/', dealController.readAllDeal)
 		.get('/:dealId', dealController.readDeal)
 		.post('/', dealController.createDeal)

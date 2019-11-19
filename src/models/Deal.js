@@ -66,4 +66,30 @@ module.exports = {
 			})
 		})
 	},
+
+	readDealByCate: function(cateId) {
+		return new Promise( function(resolve, reject) {
+			const query = `SELECT * FROM deals where category_id = '${cateId}'`
+			connection.query(query, function(error, result) {
+				if (!error) {
+					resolve(result)
+				} else {
+					reject(error)
+				}
+			})
+		})
+	},
+
+	readDealByType: function(getType) {
+		return new Promise( function(resolve, reject) {
+			const query = `SELECT * FROM deals where type = '${getType}'`
+			connection.query(query, function(error, result) {
+				if (!error) {
+					resolve(result)
+				} else {
+					reject(error)
+				}
+			})
+		})
+	},
 }
