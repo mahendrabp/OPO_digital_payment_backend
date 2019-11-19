@@ -7,18 +7,43 @@ const {check} = require('express-validator');
 
 // import required files
 const userController = require('../controllers/user');
-// const isAuthHelper = require('../helpers/isAuth');
+const isAuthHelper = require('../helpers/isAuth');
+// const imageUpload = require('../helpers/multer')
 
 console.log('route'); // where I am
 
-Route
-		.patch('/edit/:userId', userController.update)
+Route.patch('/edit/:userId', isAuthHelper.getToken, userController.update) // imageUpload.single('photo'),
 
-    .post('/login/step1', [check('phone').isMobilePhone()], userController.login1)
-    .post('/login/step2', [check('securityCode').isNumeric()], userController.login2)
+  .post('/login/step1', [check('phone').isMobilePhone()], userController.login1)
+  .post(
+    '/login/step2',
+    [
+      check('securityCode')
+        .isNumeric()
+        .isLength({min: 6, max: 6}),
+    ],
+    userController.login2,
+  )
 
-    .post('/signup/step1', [check('name').matches(/^[A-Za-z\/\s\.,'-]+$/).isLength({ min:3 }),
-    	check('phone').isMobilePhone(), check('email').isEmail()], userController.signup1)
-    .post('/signup/step2', [check('securityCode').isNumeric()], userController.signup2);
+  .post(
+    '/signup/step1',
+    [
+      check('name')
+        .matches(/^[A-Za-z\/\s\.,'-]+$/)
+        .isLength({min: 3}),
+      check('phone').isMobilePhone(),
+      check('email').isEmail(),
+    ],
+    userController.signup1,
+  )
+  .post(
+    '/signup/step2',
+    [
+      check('securityCode')
+        .isNumeric()
+        .isLength({min: 6, max: 6}),
+    ],
+    userController.signup2,
+  );
 
 module.exports = Route;
