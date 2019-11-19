@@ -11,7 +11,7 @@ const moment = require('moment'); // for signup
 const ppoboutModel = require('../models/PpobOut');
 
 module.exports = {
-  // all merchant
+  // all ppobout
   allPpobOut: (request, response) => {
     ppoboutModel
       .getAll()
@@ -33,7 +33,7 @@ module.exports = {
       });
   },
 
-  // get One Merchant
+  // get One ppo out
   getPpobOut: (request, response) => {
     ppoboutModel
       .getOne()
@@ -55,7 +55,7 @@ module.exports = {
       });
   },
 
-  // create merchant
+  // create ppob out
   createPpobOut: (request, response) => {
     // create need a field
     const id = uuidv4();
@@ -108,7 +108,7 @@ module.exports = {
   
 
   deletePpobOut: (request, response) => {
-    const {id} = req.params;
+    const {id} = request.params;
 
     merchantModel
       .delete(id)

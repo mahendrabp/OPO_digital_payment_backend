@@ -132,7 +132,7 @@ module.exports = {
   //   },
 
   deletePpobIn: (request, response) => {
-    const {id} = req.params;
+    const {id} = request.params;
 
     merchantModel
       .delete(id)
