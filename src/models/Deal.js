@@ -3,13 +3,13 @@ const uuidv4 = require('uuid/v4'); // for balances id
 // import required files
 const connection = require('../config/db');
 
-console.log('ppobout');
+console.log('deals');
 
 module.exports = {
-  // get all ppob_out
+  // get all deals
   getAll: () => {
     return new Promise((resolve, reject) => {
-      const sql = 'SELECT * FROM ppob_out';
+      const sql = 'SELECT * FROM deals';
       connection.query(sql, (error, result) => {
         if (!error) {
           resolve(result);
@@ -20,10 +20,10 @@ module.exports = {
     });
   },
 
-  // get one ppob_out by id
+  // get one deal by id
   getOne: id => {
     return new Promise((resolve, reject) => {
-      const sql = `SELECT * FROM ppob_out where id='${id}'`;
+      const sql = `SELECT * FROM deals where id='${id}'`;
 
       connection.query(sql, (error, result) => {
         if (!error) {
@@ -35,10 +35,10 @@ module.exports = {
     });
   },
 
-  // create one merchant
+  // create one deal
   create: data => {
     return new Promise((resolve, reject) => {
-      const sql = 'INSERT INTO ppob_out SET ?';
+      const sql = 'INSERT INTO deals SET ?';
 
       connection.query(sql, data, (error, result) => {
         if (!error) {
@@ -50,12 +50,25 @@ module.exports = {
     });
   },
 
-  // update one merchant
+  // update one deal
+  update: (id, data) => {
+    return new Promise((resolve, reject) => {
+      const sql = 'UPDATE deals SET ? WHERE id = ?';
 
-  // delete one merchant
+      connection.query(sql, [id, data], (error, result) => {
+        if (!error) {
+          resolve(result);
+        } else {
+          reject(error);
+        }
+      });
+    });
+  },
+
+  // delete one deal
   delete: id => {
     return new Promise((resolve, reject) => {
-      const sql = `DELETE FROM ppob_out WHERE id='${id}'`;
+      const sql = `DELETE FROM deals WHERE id='${id}'`;
 
       connection.query(sql, (error, result) => {
         if (!error) {
