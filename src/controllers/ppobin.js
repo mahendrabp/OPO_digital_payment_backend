@@ -8,18 +8,18 @@ const uuidv4 = require('uuid/v4'); // for signup
 const moment = require('moment'); // for signup
 
 // import required file
-const ppoboutModel = require('../models/PpobOut');
+const ppobinModel = require('../models/PpobIn');
 
 module.exports = {
   // all merchant
   allPpobOut: (request, response) => {
-    ppoboutModel
+    ppobinModel
       .getAll()
       .then(result => {
         response.status(200).json({
           status: 200,
           error: false,
-          message: 'Success get all ppob out',
+          message: 'Success get all ppob in',
           data: result,
         });
       })
@@ -27,7 +27,7 @@ module.exports = {
         response.status(400).json({
           status: 400,
           error: true,
-          message: 'Failed to get ppob out',
+          message: 'Failed to get ppob in',
           data: error,
         });
       });
@@ -35,13 +35,13 @@ module.exports = {
 
   // get One Merchant
   getPpobOut: (request, response) => {
-    ppoboutModel
+    ppobinModel
       .getOne()
       .then(result => {
         response.status(200).json({
           status: 200,
           error: false,
-          message: 'Success get one ppob out',
+          message: 'Success get one ppob in',
           data: result,
         });
       })
@@ -49,7 +49,7 @@ module.exports = {
         response.status(400).json({
           status: 400,
           error: true,
-          message: 'Failed get one ppob out',
+          message: 'Failed get one ppob in',
           data: error,
         });
       });
@@ -61,8 +61,6 @@ module.exports = {
     const {
       merchant_id,
       user_id,
-      nominal,
-      cost,
       total,
       opo_type,
       transaction_type,
@@ -73,21 +71,19 @@ module.exports = {
     const data = {
       merchant_id,
       user_id,
-      nominal,
-      cost,
       total,
       opo_type,
-      transaction_type
+      transaction_type,
       date,
     };
 
-    ppoboutModel
+    ppobinModel
       .create(data)
       .then(result => {
         response.status(200).json({
           status: 200,
           error: false,
-          message: 'Success create a ppob out',
+          message: 'Success create a ppob in',
           data: result,
         });
       })
@@ -95,7 +91,7 @@ module.exports = {
         response.status(400).json({
           status: 400,
           error: true,
-          message: 'Failed create a ppob out',
+          message: 'Failed create a ppob in',
           data: error,
         });
       });
@@ -140,7 +136,7 @@ module.exports = {
         response.status(200).json({
           status: 200,
           error: false,
-          message: `Success delete ppob out with ID: ${id}`,
+          message: `Success delete ppob in with ID: ${id}`,
           data: result,
         });
       })
@@ -148,7 +144,7 @@ module.exports = {
         response.status(400).json({
           status: 400,
           error: true,
-          message: 'Failed delete a ppob out',
+          message: 'Failed delete a ppob in',
           data: error,
         });
       });
