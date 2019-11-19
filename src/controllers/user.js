@@ -43,49 +43,6 @@ module.exports = {
     //   nUpdate += 1
     // }
 
-    // let securityCodeEncrypted = ''
-    if (Object.keys(updatedData).includes('security_code')) {
-      if (
-        updatedData['security_code'].length === 6 &&
-        typeof parseInt(updatedData['security_code']) === 'number'
-      ) {
-        bcrypt.genSalt(10, function(error, salt) {
-          if (error) {
-            console.log(error);
-            response.status(500).json({
-              status: 500,
-              error: true,
-              message: 'Internal server error',
-              result: {}
-            });
-          }
-          bcrypt.hash(securityCode, salt, function(errorHash, hash) {
-            if (errorHash) {
-              console.log(errorHash);
-              response.status(500).json({
-                status: 500,
-                error: true,
-                message: 'Internal server error',
-                result: {}
-              });
-            }
-            // securityCodeEncrypted = hash
-            updatedData['security_code'] = hash;
-          });
-        });
-      } else {
-        response.status(400).json({
-          status: 400,
-          error: true,
-          message: 'Invalid new security code',
-          result: {
-            ...updatedData,
-            id: userId
-          }
-        });
-      }
-    }
-
     // there is no update data on body
     if (nUpdate <= 0) {
       response.status(200).json({
@@ -141,32 +98,106 @@ module.exports = {
         });
     }
 
-    userModels
-      .updateUser(updatedData, userId)
-      .then(function(result) {
-        if (result.error) {
-          response.status(400).json(result);
-        } else {
-          response.status(200).json({
-            status: 200,
-            error: false,
-            message: 'User was updated successfully',
-            result: {
-              ...updatedData,
-              id: userId
+    // let securityCodeEncrypted = ''
+    if (Object.keys(updatedData).includes('security_code')) {
+      if (
+        updatedData['security_code'].length === 6 &&
+        typeof parseInt(updatedData['security_code']) === 'number'
+      ) {
+        bcrypt.genSalt(10, function(error, salt) {
+          if (error) {
+            console.log(error);
+            response.status(500).json({
+              status: 500,
+              error: true,
+              message: 'Internal server error',
+              result: {}
+            });
+          }
+          bcrypt.hash(updatedData['security_code'], salt, function(
+            errorHash,
+            hash
+          ) {
+            if (errorHash) {
+              console.log(errorHash);
+              response.status(500).json({
+                status: 500,
+                error: true,
+                message: 'Internal server error',
+                result: {}
+              });
             }
+            // securityCodeEncrypted = hash
+            console.log(hash);
+            updatedData['security_code'] = hash;
+
+            userModels
+              .updateUser(updatedData, userId)
+              .then(function(result) {
+                if (result.error) {
+                  response.status(400).json(result);
+                } else {
+                  response.status(200).json({
+                    status: 200,
+                    error: false,
+                    message: 'User was updated successfully',
+                    result: {
+                      ...updatedData,
+                      id: userId
+                    }
+                  });
+                }
+              })
+              .catch(function(error) {
+                console.log(error);
+                response.status(500).json({
+                  status: 500,
+                  error: true,
+                  message: 'Internal server error',
+                  result: {}
+                });
+              });
           });
-        }
-      })
-      .catch(function(error) {
-        console.log(error);
-        response.status(500).json({
-          status: 500,
-          error: true,
-          message: 'Internal server error',
-          result: {}
         });
-      });
+      } else {
+        response.status(400).json({
+          status: 400,
+          error: true,
+          message: 'Invalid new security code',
+          result: {
+            ...updatedData,
+            id: userId
+          }
+        });
+      }
+    } else {
+      userModels
+        .updateUser(updatedData, userId)
+        .then(function(result) {
+          if (result.error) {
+            response.status(400).json(result);
+          } else {
+            response.status(200).json({
+              status: 200,
+              error: false,
+              message: 'User was updated successfully',
+              result: {
+                ...updatedData,
+                id: userId
+              }
+            });
+          }
+        })
+        .catch(function(error) {
+          console.log(error);
+          response.status(500).json({
+            status: 500,
+            error: true,
+            message: 'Internal server error',
+            result: {}
+          });
+        });
+    }
   },
 
   login1: function(request, response) {
