@@ -58,6 +58,7 @@ module.exports = {
   // create merchant
   createPpobOut: (request, response) => {
     // create need a field
+    const id = uuidv4();
     const {
       merchant_id,
       user_id,
@@ -68,9 +69,12 @@ module.exports = {
       transaction_type,
     } = request.body;
 
-    const date = new Date();
+    const date = moment()
+    .format()
+    .split('+')[0]
     // data
     const data = {
+      id,
       merchant_id,
       user_id,
       nominal,
@@ -101,35 +105,7 @@ module.exports = {
       });
   },
 
-  //   updateMerchant: (request, response) => {
-  //     // need parameter in url
-  //     const {id} = req.params;
-  //     // field body name
-  //     const {name} = req.body;
-  //     // field logo
-  //     const logo = req.file.filename;
-  //     // data (name, logo)
-  //     const data = {name, logo};
-
-  //     merchantModel
-  //       .update(id, data)
-  //       .then(result => {
-  //         response.status(200).json({
-  //           status: 200,
-  //           error: false,
-  //           message: `Success update merchant with ID: ${id}`,
-  //           data: result,
-  //         });
-  //       })
-  //       .catch(error => {
-  //         response.status(400).json({
-  //           status: 400,
-  //           error: true,
-  //           message: 'Failed create a merchant',
-  //           data: error,
-  //         });
-  //       });
-  //   },
+  
 
   deletePpobOut: (request, response) => {
     const {id} = req.params;

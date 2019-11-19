@@ -12,7 +12,7 @@ const ppobinModel = require('../models/PpobIn');
 
 module.exports = {
   // all merchant
-  allPpobOut: (request, response) => {
+  allPpobIn: (request, response) => {
     ppobinModel
       .getAll()
       .then(result => {
@@ -34,7 +34,7 @@ module.exports = {
   },
 
   // get One Merchant
-  getPpobOut: (request, response) => {
+  getPpobIn: (request, response) => {
     ppobinModel
       .getOne()
       .then(result => {
@@ -56,8 +56,9 @@ module.exports = {
   },
 
   // create merchant
-  createPpobOut: (request, response) => {
+  createPpobIn: (request, response) => {
     // create need a field
+    const id = uuidv4();
     const {
       merchant_id,
       user_id,
@@ -66,9 +67,12 @@ module.exports = {
       transaction_type,
     } = request.body;
 
-    const date = new Date();
+    const date = moment()
+      .format()
+      .split('+')[0];
     // data
     const data = {
+      id,
       merchant_id,
       user_id,
       total,
@@ -127,7 +131,7 @@ module.exports = {
   //       });
   //   },
 
-  deletePpobOut: (request, response) => {
+  deletePpobIn: (request, response) => {
     const {id} = req.params;
 
     merchantModel
