@@ -23,6 +23,8 @@ module.exports = {
     const userId = request.params.userId;
     const updatedData = {};
     let nUpdate = 0
+    console.log('=========')
+    console.log(request.body)
     for (o in request.body) {
       nUpdate += 1
       if (Object.hasOwnProperty.call(request.body, o)) {
@@ -34,6 +36,54 @@ module.exports = {
       }
     }
     // updatedData['date_updated'] = moment().format().split('+')[0];
+
+    // Saving file path to database
+    // request.file.filename = data.name + req.file.filename
+    // if (request.file.path) {
+    //   updatedData['photo'] = request.file.path
+    //   nUpdate += 1
+    // }
+
+    // let securityCodeEncrypted = ''
+    if (Object.keys(updatedData).includes('security_code')) {
+      if (updatedData['security_code'].length === 6 &&
+        typeof parseInt(updatedData['security_code']) === 'number') {
+        bcrypt.genSalt(10, function(error, salt) {
+          if (error) {
+            console.log(error);
+            response.status(500).json({
+              status: 500,
+              error: true,
+              message: 'Internal server error',
+              result: {},
+            });
+          }
+          bcrypt.hash(securityCode, salt, function(errorHash, hash) {
+            if (errorHash) {
+              console.log(errorHash);
+              response.status(500).json({
+                status: 500,
+                error: true,
+                message: 'Internal server error',
+                result: {},
+              });
+            }
+            // securityCodeEncrypted = hash
+            updatedData['security_code'] = hash
+          })
+        })
+      } else {
+        response.status(400).json({
+          status: 400,
+          error: true,
+          message: 'Invalid new security code',
+          result: {
+            ...updatedData,
+            id: userId,
+          }
+        });
+      }
+    }
 
     // there is no update data on body
     if (nUpdate <= 0) {
@@ -48,20 +98,61 @@ module.exports = {
       });
     }
 
+    if ('phone' in updatedData) {
+      console.log('phone here')
+      var key = 'phone'
+      userModels.updateUserValidation(key, updatedData)
+      .then( function(result) {
+        if (result.error) {
+          response.status(400).json(result);
+        }
+      })
+      .catch( function(error) {
+        console.log(error);
+        response.status(500).json({
+          status: 500,
+          error: true,
+          message: 'Internal server error',
+          result: {},
+        });
+      })
+    }
+
+    if ('email' in updatedData) {
+      console.log('email here')
+      var key = 'email'
+      userModels.updateUserValidation(key, updatedData)
+      .then( function(result) {
+        if (result.error) {
+          response.status(400).json(result);
+        }
+      })
+      .catch( function(error) {
+        console.log(error);
+        response.status(500).json({
+          status: 500,
+          error: true,
+          message: 'Internal server error',
+          result: {},
+        });
+      })
+    }
+    
     userModels.updateUser(updatedData, userId)
     .then( function(result) {
       if (result.error) {
         response.status(400).json(result);
+      } else {
+        response.status(200).json({
+          status: 200,
+          error: false,
+          message: 'User was updated successfully',
+          result: {
+            ...updatedData,
+            id: userId,
+          }
+        });
       }
-      response.status(200).json({
-        status: 200,
-        error: false,
-        message: 'User was updated successfully',
-        result: {
-          ...updatedData,
-          id: userId,
-        }
-      });
     })
     .catch( function(error) {
       console.log(error);

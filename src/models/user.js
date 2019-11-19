@@ -8,6 +8,31 @@ const connection = require('../config/db');
 console.log('model'); // where I am
 
 module.exports = {
+  updateUserValidation: function(key, updateData) {
+    return new Promise( function(resolve, reject) {
+      console.log(key + ' used')
+      console.log(updateData[key])
+      const queryValidation = `SELECT * FROM users WHERE ${key} = "${updateData[key]}"`
+      connection.query(queryValidation, function(error, result) {
+        console.log(result)
+        if (!error) {
+          if (result.length > 0) {
+            console.log(key + ' used')
+            resolve({
+              status: 400,
+              error: true,
+              message: 'The ' + key + ' was already used by other',
+              result: {},
+            })
+          } else {
+            resolve(result)
+          }
+        } else {
+          reject(error)
+        }
+      })
+    })
+  },
 
   updateUser: function(updateData, userId) {
     return new Promise( function(resolve, reject) {
