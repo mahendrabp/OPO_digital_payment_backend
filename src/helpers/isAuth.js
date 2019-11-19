@@ -3,7 +3,7 @@ const config = require('../config/config');
 const jwtSecret = config.jwtSecret;
 // const expressjwt = require('express-jwt')
 const jwt = require('jsonwebtoken');
-currentUserModel = require('../models/currentUser');
+currentUserModel = require('../models/CurrentUser');
 
 // We are assuming that the JWT will come in the header Authorization
 // but it could come in the req.body or in a query param,

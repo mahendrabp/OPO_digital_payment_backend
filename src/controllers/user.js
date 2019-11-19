@@ -13,7 +13,7 @@ const moment = require('moment'); // for signup
 // const client = new authy.Client({ key: 'foo' });
 
 // import required files
-const userModels = require('../models/user');
+const userModels = require('../models/User');
 
 console.log('controller'); // where I am
 

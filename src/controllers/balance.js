@@ -13,7 +13,7 @@ const moment = require('moment'); // for signup
 // const client = new authy.Client({ key: 'foo' });
 
 // import required files
-const balanceModels = require('../models/balance');
+const balanceModels = require('../models/Balance');
 
 console.log('controller'); // where I am
 
