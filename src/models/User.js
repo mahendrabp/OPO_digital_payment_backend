@@ -8,6 +8,20 @@ const connection = require('../config/db');
 console.log('model'); // where I am
 
 module.exports = {
+
+  read: function(userId) {
+    return new Promise(function(resolve, reject) {
+      const query = `SELECT * FROM users INNER JOIN balances ON users.id = balances.user_id WHERE users.id = '${userId}'`
+      connection.query(query, function(error, result) {
+        if (!error) {
+          resolve(result)
+        } else {
+          reject(error)
+        }
+      })
+    })
+  },
+
   updateUserValidation: function(key, updateData) {
     return new Promise(function(resolve, reject) {
       console.log(key + ' used');

@@ -14,10 +14,161 @@ const moment = require('moment'); // for signup
 
 // import required files
 const balanceModels = require('../models/Balance');
+const ppobinModels = require('../models/PpobIn');
+const ppoboutModels = require('../models/PpobOut');
 
 console.log('controller'); // where I am
 
 module.exports = {
+  ppob: function(request, response) {
+    // get error from validation
+    const errors = validationResult(request);
+
+    // is valid
+    if (!errors.isEmpty()) {
+      return response.status(400).json({
+        status: 400,
+        error: true,
+        message: 'Invalid input',
+        result: errors.array(),
+      });
+    }
+
+    const { type, userId } = request.params
+    const { opoType, merchantId, nominal, transactionType } = request.body
+    let cost = request.body.cost;
+    const id = uuidv4();
+    const date = moment().format().split('+')[0];
+
+    if (opoType !== 'opo_cash' && opoType !== 'opo_point') {
+      return response.status(400).json({
+        status: 400,
+        error: true,
+        message: 'Invalid opo type',
+        result: {
+          opoType,
+          date,
+        },
+      });
+    }
+
+    if (cost === undefined || cost === '') {
+      cost = 0
+    }
+
+    let nominalSign = ''
+    if (type === 'in') {
+      console.log('in')
+      nominalSign = ( parseInt(nominal) + parseInt(cost) )
+      console.log(nominalSign)
+    } else if (type === 'out') {
+      console.log('out')
+      nominalSign = -( parseInt(nominal) + parseInt(cost) )
+      console.log(nominalSign)
+    } else {
+      return response.status(400).json({
+        status: 400,
+        error: true,
+        message: 'Invalid type',
+        result: {
+          type,
+          date,
+        },
+      });
+    }
+
+    balanceModels.ppob(userId, opoType, nominalSign)
+    .then(result=>{
+
+      if (result.error) {
+        result.result['merchantId'] = merchantId
+        result.result['saldoWillOut'] = parseInt(nominal) + parseInt(cost)
+        result.result['date'] = date
+        response.status(400).json(result)
+      } else {
+
+        if (type === 'in') {
+
+          // data
+          const data = {
+            id,
+            merchant_id: merchantId,
+            user_id: userId,
+            total: nominal,
+            opo_type: opoType,
+            date,
+          };
+
+          ppobinModels
+            .create(data)
+            .then(resultPpob => {
+              result.result['merchantId'] = merchantId
+              result.result['saldoIn'] = parseInt(nominal)
+              result.result['date'] = date
+              response.status(201).json(result);
+            })
+            .catch(errorPpob => {
+              response.status(400).json({
+                status: 400,
+                error: true,
+                message: 'Failed create a ppob in',
+                data: error,
+              });
+            });
+    
+        } else { // if out
+
+          // if (cost === undefined) {
+          //   cost = 0
+          // }
+
+          // data
+          const data = {
+            id,
+            merchant_id: merchantId,
+            user_id: userId,
+            nominal,
+            cost,
+            total: parseInt(nominal) + parseInt(cost),
+            opo_type: opoType,
+            date,
+            transaction_type: transactionType,
+          };
+
+          ppoboutModels
+            .create(data)
+            .then(resultPpob => {
+              result.result['merchantId'] = merchantId
+              result.result['saldoOut'] = data.total //parseInt(nominal)
+              result.result['transactionType'] = transactionType
+              result.result['date'] = date
+              response.status(201).json(result);
+            })
+            .catch(errorPpob => {
+              response.status(400).json({
+                status: 400,
+                error: true,
+                message: 'Failed create a ppob out',
+                data: errorPpob,
+              });
+            });
+
+        }
+
+      }
+  
+    })
+    .catch(error=>{
+      console.log(error);
+      response.status(500).json({
+        status: 500,
+        error: true,
+        message: 'Internal server error',
+        result: {},
+      });
+    })
+  },
+
   transfer: function(request, response) {
     // get error from validation
     const errors = validationResult(request);

@@ -12,9 +12,13 @@ const isAuthHelper = require('../helpers/isAuth');
 
 console.log('route'); // where I am
 
-Route.patch('/edit/:userId', isAuthHelper.getToken, userController.update) // imageUpload.single('photo'),
+Route
+  .get('/get/:userId', isAuthHelper.getToken, userController.read)
+
+  .patch('/edit/:userId', isAuthHelper.getToken, userController.update) // imageUpload.single('photo'),
 
   .post('/login/step1', [check('phone').isMobilePhone()], userController.login1)
+  
   .post(
     '/login/step2',
     [
@@ -36,6 +40,7 @@ Route.patch('/edit/:userId', isAuthHelper.getToken, userController.update) // im
     ],
     userController.signup1,
   )
+
   .post(
     '/signup/step2',
     [

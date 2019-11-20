@@ -10,6 +10,56 @@ const connection = require('../config/db');
 console.log('model'); // where I am
 
 module.exports = {
+
+  ppob: function(userId, opoType, nominalSign) {
+    return new Promise(function(resolve, reject) {
+      console.log(nominalSign)
+      // let cash = ''
+      // if (opoType === 'opo_cash') {
+      //   cash = 'OPO Cash'
+      // } else {
+      //   cash = 'OPO Point'
+      // }
+      const query = `SELECT ${opoType} FROM balances WHERE user_id = '${userId}'`;
+      connection.query(query, function(error, result) {
+        if (!error) {
+          console.log(result)
+          if (result[0][opoType] + nominalSign >= 0) {
+            const queryPpob = `UPDATE balances SET ${opoType} = ${opoType} + ${nominalSign} WHERE user_id = "${userId}"`;
+            connection.query(queryPpob, function(errorPpob, resultPpob) {
+              if (!error) {
+                resolve({
+                  status: 201,
+                  error: false,
+                  message: 'PPOB transaction was successful',
+                  result: {
+                    opoType,
+                    'lastSaldo': parseInt(result[0][opoType]),
+                    'currentSaldo': parseInt(result[0][opoType]) + parseInt(nominalSign),
+                  }
+                })
+              } else {
+                reject(errorPpob)
+              }
+            })
+          } else {
+            resolve({
+              status: 400,
+              error: true,
+              message: 'Your ' + opoType + ' was not enough',
+              result: {
+                opoType,
+                'currentSaldo': parseInt(result[0][opoType]),
+              },
+            })
+          }
+        } else {
+          reject(error)
+        }
+      })
+    })
+  },
+
   isEnough: function(userId, nominal) {
     return new Promise(function(resolve, reject) {
       const queryCash = `SELECT opo_cash FROM balances WHERE user_id = '${userId}'`;

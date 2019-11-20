@@ -4,7 +4,7 @@ module.exports = {
 
 	readAll: function() {
     return new Promise(function(resolve, reject) {
-			const query = 'SELECT * FROM deals'
+			const query = 'SELECT * FROM merchants m INNER JOIN deals d ON d.merchant_id = m.id'
 			connection.query(query, function(error, result) {
 				if (!error) {
 					resolve(result)
@@ -17,7 +17,7 @@ module.exports = {
 
 	read: function(dealId) {
 		return new Promise( function(resolve, reject) {
-			const query = `SELECT * FROM deals where id = '${dealId}'`
+			const query = `SELECT * FROM merchants m INNER JOIN deals d ON d.merchant_id = m.id where d.id = '${dealId}'`
 			connection.query(query, function(error, result) {
 				if (!error) {
 					resolve(result)
@@ -69,7 +69,7 @@ module.exports = {
 
 	readDealByCate: function(cateId) {
 		return new Promise( function(resolve, reject) {
-			const query = `SELECT * FROM deals where category_id = '${cateId}'`
+			const query = `SELECT * FROM merchants m INNER JOIN deals d ON d.merchant_id = m.id where d.category_id = '${cateId}'`
 			connection.query(query, function(error, result) {
 				if (!error) {
 					resolve(result)
@@ -82,7 +82,7 @@ module.exports = {
 
 	readDealByType: function(getType) {
 		return new Promise( function(resolve, reject) {
-			const query = `SELECT * FROM deals where type = '${getType}'`
+			const query = `SELECT * FROM merchants m INNER JOIN deals d ON d.merchant_id = m.id where d.type = '${getType}'`
 			connection.query(query, function(error, result) {
 				if (!error) {
 					resolve(result)

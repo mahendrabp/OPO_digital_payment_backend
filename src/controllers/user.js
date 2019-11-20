@@ -18,6 +18,29 @@ const userModels = require('../models/User');
 console.log('controller'); // where I am
 
 module.exports = {
+
+  read: function(request, response) {
+    const userId = request.params.userId;
+    console.log(userId)
+    userModels.read(userId)
+    .then(result => {
+      response.status(200).json({
+        status: 200,
+        error: false,
+        message: 'Get user with id: ' + userId + ' successfully',
+        result,
+      })
+    })
+    .catch(error => {
+      response.status(404).json({
+        status: 404,
+        error: true,
+        message: 'Can not find user with id: ' + userId,
+        result: error,
+      })
+    })
+  },
+
   update: function(request, response) {
     const userId = request.params.userId;
     const updatedData = {};
@@ -286,22 +309,23 @@ module.exports = {
             message: 'Security Code salah. Mohon untuk mencoba kembali',
             result: {},
           });
+        } else {
+
+          // generate token for logged in user
+          const token = 'hello00opo ' + jwt.sign({data_login}, jwtSecret); //, {expiresIn: 3600}); // per unit second
+
+          response.status(201).json({
+            status: 201,
+            error: false,
+            message: 'Login as ' + result.name,
+            result: {
+              ...result,
+              id: '',
+              security_code: '',
+              authorization: token,
+            },
+          });
         }
-
-        // generate token for logged in user
-        const token = 'hello00opo ' + jwt.sign({data_login}, jwtSecret); //, {expiresIn: 3600}); // per unit second
-
-        response.status(201).json({
-          status: 201,
-          error: false,
-          message: 'Login as ' + result.name,
-          result: {
-            ...result,
-            id: '',
-            security_code: '',
-            authorization: token,
-          },
-        });
       })
       .catch(function(error) {
         console.log(error);
