@@ -12,6 +12,8 @@ const balanceController = require('../controllers/balance');
 console.log('route'); // where I am
 
 Route
+		.get('/history/:userId', balanceController.history)
+
 		.post('/ppob/:type/:userId', [check('nominal').isNumeric()], balanceController.ppob)
 
 		.patch('/transfer/:userId', [check('phoneTo').isMobilePhone(), check('nominal').isNumeric()],

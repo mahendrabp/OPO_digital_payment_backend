@@ -20,6 +20,23 @@ const ppoboutModels = require('../models/PpobOut');
 console.log('controller'); // where I am
 
 module.exports = {
+
+  history: function(request, response) {
+    const { userId } = request.params
+    balanceModels.history(userId)
+    .then(result=>{
+      response.status(200).json({
+        status: 200,
+        error: false,
+        message: 'Success get history from user with id: ' + userId,
+        result,
+      })
+    })
+    .catch(error=>{
+      response.status(404).json(error)
+    })
+  },
+
   ppob: function(request, response) {
     // get error from validation
     const errors = validationResult(request);

@@ -11,6 +11,45 @@ console.log('model'); // where I am
 
 module.exports = {
 
+  history: function(userId) {
+    return new Promise( function(resolve, reject) {
+      const queryTransferIn = `SELECT * FROM users u INNER JOIN transfers t ON t.user_id_from = u.id WHERE t.user_id_to = '${userId}'`
+      connection.query(queryTransferIn, function(errorTransferIn, resultTransferIn) {
+        if (!errorTransferIn) {
+          const queryTransferOut = `SELECT * FROM users u INNER JOIN transfers t ON t.user_id_to = u.id WHERE user_id_from = '${userId}'`
+          connection.query(queryTransferOut, function(errorTransferOut, resultTransferOut) {
+            if (!errorTransferOut) {
+              const queryPpobIn = `SELECT * FROM merchants m INNER JOIN ppob_in pi ON pi.merchant_id = m.id WHERE pi.user_id = '${userId}'`
+              connection.query(queryPpobIn, function(errorPpobIn, resultPpobIn) {
+                if (!errorPpobIn) {
+                  const queryPpobOut = `SELECT * FROM merchants m INNER JOIN ppob_out po ON po.merchant_id = m.id WHERE po.user_id = '${userId}'`
+                  connection.query(queryPpobOut, function(errorPpobOut, resultPpobOut) {
+                    if (!errorPpobOut) {
+                      resolve({
+                        'transferIn': resultTransferIn,
+                        'transferOut': resultTransferOut,
+                        'ppobIn': resultPpobIn,
+                        'ppobOut':resultPpobOut,
+                      })
+                    } else {
+                      reject(errorPpobOut)
+                    }
+                  })
+                } else {
+                  reject(errorPpobIn)
+                }
+              })
+            } else {
+              reject(errorTransferOut)
+            }
+          })
+        } else {
+          reject(errorTransferIn)
+        }
+      })
+    })
+  },
+
   ppob: function(userId, opoType, nominalSign) {
     return new Promise(function(resolve, reject) {
       console.log(nominalSign)
