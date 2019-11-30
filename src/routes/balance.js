@@ -14,9 +14,9 @@ console.log('route'); // where I am
 Route
 		.get('/history/:userId', balanceController.history)
 
-		.post('/ppob/:type/:userId', [check('nominal').isNumeric()], balanceController.ppob)
+		.post('/ppob/:type/:userId', [check('nominal').isInt({ min: 1 })], balanceController.ppob) //.isNumeric()
 
-		.patch('/transfer/:userId', [check('phoneTo').isMobilePhone(), check('nominal').isNumeric()],
+		.patch('/transfer/:userId', [check('phoneTo').isMobilePhone(), check('nominal').isInt({ min: 1 })], //isNumeric()
 			balanceController.transfer);
 
 module.exports = Route;

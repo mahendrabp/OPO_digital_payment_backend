@@ -25,11 +25,28 @@ module.exports = {
     const { userId } = request.params
     balanceModels.history(userId)
     .then(result=>{
+      const newResult = []
+      for (transaction in result) {
+        // console.log(transaction)
+        result[transaction].forEach(transactionDetail=>{
+          newResult.push({...transactionDetail, histType:transaction})
+        })
+      }
+      // sort by date
+      newResult.sort(function(a, b){
+        var keyA = new Date(a.date),
+        keyB = new Date(b.date);
+        // Compare the 2 dates
+        if(keyA < keyB) return 1;
+        if(keyA > keyB) return -1;
+        return 0;
+      });
       response.status(200).json({
         status: 200,
         error: false,
         message: 'Success get history from user with id: ' + userId,
-        result,
+        // result,
+        newResult,
       })
     })
     .catch(error=>{
