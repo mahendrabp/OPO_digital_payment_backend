@@ -3,7 +3,7 @@ const config = require('../config/config'); // for login
 const jwtSecret = config.jwtSecret; // for login
 const bcrypt = require('bcrypt'); // for login and signup
 const jwt = require('jsonwebtoken'); // for login
-const {validationResult} = require('express-validator'); // for login and signup
+const { validationResult } = require('express-validator'); // for login and signup
 const uuidv4 = require('uuid/v4'); // for signup
 const moment = require('moment'); // for signup
 
@@ -59,13 +59,7 @@ module.exports = {
   createPpobIn: (request, response) => {
     // create need a field
     const id = uuidv4();
-    const {
-      merchant_id,
-      user_id,
-      total,
-      opo_type,
-      transaction_type,
-    } = request.body;
+    const { merchant_id, user_id, total, opo_type, transaction_type } = request.body;
 
     const date = moment()
       .format()
@@ -132,7 +126,7 @@ module.exports = {
   //   },
 
   deletePpobIn: (request, response) => {
-    const {id} = request.params;
+    const { id } = request.params;
 
     merchantModel
       .delete(id)

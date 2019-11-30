@@ -3,7 +3,7 @@ const config = require('../config/config'); // for login
 const jwtSecret = config.jwtSecret; // for login
 const bcrypt = require('bcrypt'); // for login and signup
 const jwt = require('jsonwebtoken'); // for login
-const {validationResult} = require('express-validator'); // for login and signup
+const { validationResult } = require('express-validator'); // for login and signup
 const uuidv4 = require('uuid/v4'); // for signup
 const moment = require('moment'); // for signup
 
@@ -58,11 +58,11 @@ module.exports = {
   // create merchant
   createMerchant: (request, response) => {
     // create need a field
-    const {name} = req.body;
+    const { name } = req.body;
     const logo = req.file.filename;
 
     // data
-    const data = {name, logo};
+    const data = { name, logo };
 
     merchantModel
       .create(data)
@@ -86,13 +86,13 @@ module.exports = {
 
   updateMerchant: (request, response) => {
     // need parameter in url
-    const {id} = req.params;
+    const { id } = req.params;
     // field body name
-    const {name} = req.body;
+    const { name } = req.body;
     // field logo
     const logo = req.file.filename;
     // data (name, logo)
-    const data = {name, logo};
+    const data = { name, logo };
 
     merchantModel
       .update(id, data)
@@ -115,7 +115,7 @@ module.exports = {
   },
 
   deleteMerchant: (request, response) => {
-    const {id} = req.params;
+    const { id } = req.params;
 
     merchantModel
       .delete(id)

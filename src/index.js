@@ -12,6 +12,8 @@ const deal = require('./routes/deal');
 console.log('index'); // where I am
 
 // create routes
-Route.use('/api/v1/balance', balance).use('/api/v1/user', user).use('/api/v1/deal', deal);
+Route.use('/api/v1/balance', balance)
+  .use('/api/v1/user', user)
+  .use('/api/v1/deal', deal);
 
 module.exports = Route;

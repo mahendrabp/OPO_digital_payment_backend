@@ -20,4 +20,4 @@ const fileFilter = (req, file, callback) => {
   }
 };
 
-module.exports = multer({storage: storage, fileFilter});
+module.exports = multer({ storage, fileFilter });

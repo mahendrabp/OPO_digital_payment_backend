@@ -10,49 +10,48 @@ const connection = require('../config/db');
 console.log('model'); // where I am
 
 module.exports = {
-
-  history: function(userId) {
-    return new Promise( function(resolve, reject) {
-      const queryTransferIn = `SELECT * FROM users u INNER JOIN transfers t ON t.user_id_from = u.id WHERE t.user_id_to = '${userId}'`
+  history(userId) {
+    return new Promise((resolve, reject) => {
+      const queryTransferIn = `SELECT * FROM users u INNER JOIN transfers t ON t.user_id_from = u.id WHERE t.user_id_to = '${userId}'`;
       connection.query(queryTransferIn, function(errorTransferIn, resultTransferIn) {
         if (!errorTransferIn) {
-          const queryTransferOut = `SELECT * FROM users u INNER JOIN transfers t ON t.user_id_to = u.id WHERE user_id_from = '${userId}'`
+          const queryTransferOut = `SELECT * FROM users u INNER JOIN transfers t ON t.user_id_to = u.id WHERE user_id_from = '${userId}'`;
           connection.query(queryTransferOut, function(errorTransferOut, resultTransferOut) {
             if (!errorTransferOut) {
-              const queryPpobIn = `SELECT * FROM merchants m INNER JOIN ppob_in pi ON pi.merchant_id = m.id WHERE pi.user_id = '${userId}'`
+              const queryPpobIn = `SELECT * FROM merchants m INNER JOIN ppob_in pi ON pi.merchant_id = m.id WHERE pi.user_id = '${userId}'`;
               connection.query(queryPpobIn, function(errorPpobIn, resultPpobIn) {
                 if (!errorPpobIn) {
-                  const queryPpobOut = `SELECT * FROM merchants m INNER JOIN ppob_out po ON po.merchant_id = m.id WHERE po.user_id = '${userId}'`
-                  connection.query(queryPpobOut, function(errorPpobOut, resultPpobOut) {
+                  const queryPpobOut = `SELECT * FROM merchants m INNER JOIN ppob_out po ON po.merchant_id = m.id WHERE po.user_id = '${userId}'`;
+                  connection.query(queryPpobOut, (errorPpobOut, resultPpobOut) => {
                     if (!errorPpobOut) {
                       resolve({
-                        'transferIn': resultTransferIn,
-                        'transferOut': resultTransferOut,
-                        'ppobIn': resultPpobIn,
-                        'ppobOut':resultPpobOut,
-                      })
+                        transferIn: resultTransferIn,
+                        transferOut: resultTransferOut,
+                        ppobIn: resultPpobIn,
+                        ppobOut: resultPpobOut,
+                      });
                     } else {
-                      reject(errorPpobOut)
+                      reject(errorPpobOut);
                     }
-                  })
+                  });
                 } else {
-                  reject(errorPpobIn)
+                  reject(errorPpobIn);
                 }
-              })
+              });
             } else {
-              reject(errorTransferOut)
+              reject(errorTransferOut);
             }
-          })
+          });
         } else {
-          reject(errorTransferIn)
+          reject(errorTransferIn);
         }
-      })
-    })
+      });
+    });
   },
 
-  ppob: function(userId, opoType, nominalSign) {
-    return new Promise(function(resolve, reject) {
-      console.log(nominalSign)
+  ppob(userId, opoType, nominalSign) {
+    return new Promise((resolve, reject) => {
+      console.log(nominalSign);
       // let cash = ''
       // if (opoType === 'opo_cash') {
       //   cash = 'OPO Cash'
@@ -62,7 +61,7 @@ module.exports = {
       const query = `SELECT ${opoType} FROM balances WHERE user_id = '${userId}'`;
       connection.query(query, function(error, result) {
         if (!error) {
-          console.log(result)
+          console.log(result);
           if (result[0][opoType] + nominalSign >= 0) {
             const queryPpob = `UPDATE balances SET ${opoType} = ${opoType} + ${nominalSign} WHERE user_id = "${userId}"`;
             connection.query(queryPpob, function(errorPpob, resultPpob) {
@@ -73,34 +72,34 @@ module.exports = {
                   message: 'PPOB transaction was successful',
                   result: {
                     opoType,
-                    'lastSaldo': parseInt(result[0][opoType]),
-                    'currentSaldo': parseInt(result[0][opoType]) + parseInt(nominalSign),
-                  }
-                })
+                    lastSaldo: parseInt(result[0][opoType]),
+                    currentSaldo: parseInt(result[0][opoType]) + parseInt(nominalSign),
+                  },
+                });
               } else {
-                reject(errorPpob)
+                reject(errorPpob);
               }
-            })
+            });
           } else {
             resolve({
               status: 400,
               error: true,
-              message: 'Your ' + opoType + ' was not enough',
+              message: `Your ${opoType} was not enough`,
               result: {
                 opoType,
-                'currentSaldo': parseInt(result[0][opoType]),
+                currentSaldo: parseInt(result[0][opoType]),
               },
-            })
+            });
           }
         } else {
-          reject(error)
+          reject(error);
         }
-      })
-    })
+      });
+    });
   },
 
   isEnough: function(userId, nominal) {
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       const queryCash = `SELECT opo_cash FROM balances WHERE user_id = '${userId}'`;
       connection.query(queryCash, function(error, result) {
         if (!error) {
@@ -131,7 +130,7 @@ module.exports = {
   },
 
   transfer: function(userId, nominal, phoneTo) {
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       const queryPhone = `SELECT * FROM users WHERE phone = '${phoneTo}'`;
       connection.query(queryPhone, function(error, result) {
         if (!error) {
@@ -160,16 +159,12 @@ module.exports = {
                         .split('+')[0],
                     };
                     const queryTransfer = `INSERT INTO transfers SET ?`;
-                    connection.query(queryTransfer, dataTransfer, function(
-                      error,
-                      result,
-                    ) {
+                    connection.query(queryTransfer, dataTransfer, function(error, result) {
                       if (!error) {
                         resolve({
                           status: 200,
                           error: false,
-                          message:
-                            'Transfer to ' + phoneTo + ' was done successfully',
+                          message: `Transfer to ${phoneTo} was done successfully`,
                           result: dataTransfer,
                         });
                       } else {

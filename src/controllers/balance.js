@@ -1,9 +1,9 @@
 // import required dependencies
 const config = require('../config/config'); // for login
-const jwtSecret = config.jwtSecret; // for login
+const { jwtSecret } = config; // for login
 const bcrypt = require('bcrypt'); // for login and signup
 const jwt = require('jsonwebtoken'); // for login
-const {validationResult} = require('express-validator'); // for login and signup
+const { validationResult } = require('express-validator'); // for login and signup
 const uuidv4 = require('uuid/v4'); // for signup
 const moment = require('moment'); // for signup
 
@@ -20,41 +20,41 @@ const ppoboutModels = require('../models/PpobOut');
 console.log('controller'); // where I am
 
 module.exports = {
-
-  history: function(request, response) {
-    const { userId } = request.params
-    balanceModels.history(userId)
-    .then(result=>{
-      const newResult = []
-      for (transaction in result) {
-        // console.log(transaction)
-        result[transaction].forEach(transactionDetail=>{
-          newResult.push({...transactionDetail, histType:transaction})
-        })
-      }
-      // sort by date
-      newResult.sort(function(a, b){
-        var keyA = new Date(a.date),
-        keyB = new Date(b.date);
-        // Compare the 2 dates
-        if(keyA < keyB) return 1;
-        if(keyA > keyB) return -1;
-        return 0;
-      });
-      response.status(200).json({
-        status: 200,
-        error: false,
-        message: 'Success get history from user with id: ' + userId,
-        // result,
-        newResult,
+  history(request, response) {
+    const { userId } = request.params;
+    balanceModels
+      .history(userId)
+      .then(result => {
+        const newResult = [];
+        for (transaction in result) {
+          // console.log(transaction)
+          result[transaction].forEach(transactionDetail => {
+            newResult.push({ ...transactionDetail, histType: transaction });
+          });
+        }
+        // sort by date
+        newResult.sort((a, b) => {
+          var keyA = new Date(a.date),
+            keyB = new Date(b.date);
+          // Compare the 2 dates
+          if (keyA < keyB) return 1;
+          if (keyA > keyB) return -1;
+          return 0;
+        });
+        response.status(200).json({
+          status: 200,
+          error: false,
+          message: `Success get history from user with id: ${userId}`,
+          // result,
+          newResult,
+        });
       })
-    })
-    .catch(error=>{
-      response.status(404).json(error)
-    })
+      .catch(error => {
+        response.status(404).json(error);
+      });
   },
 
-  ppob: function(request, response) {
+  ppob(request, response) {
     // get error from validation
     const errors = validationResult(request);
 
@@ -68,11 +68,15 @@ module.exports = {
       });
     }
 
-    const { type, userId } = request.params
-    const { opoType, merchantId, nominal, transactionType } = request.body
-    let cost = request.body.cost;
+    const { type, userId } = request.params;
+
+    const { opoType, merchantId, nominal, transactionType } = request.body;
+
+    let { cost } = request.body;
     const id = uuidv4();
-    const date = moment().format().split('+')[0];
+    const date = moment()
+      .format()
+      .split('+')[0];
 
     if (opoType !== 'opo_cash' && opoType !== 'opo_point') {
       return response.status(400).json({
@@ -87,18 +91,18 @@ module.exports = {
     }
 
     if (cost === undefined || cost === '') {
-      cost = 0
+      cost = 0;
     }
 
-    let nominalSign = ''
+    let nominalSign = '';
     if (type === 'in') {
-      console.log('in')
-      nominalSign = ( parseInt(nominal) + parseInt(cost) )
-      console.log(nominalSign)
+      console.log('in');
+      nominalSign = parseInt(nominal) + parseInt(cost);
+      console.log(nominalSign);
     } else if (type === 'out') {
-      console.log('out')
-      nominalSign = -( parseInt(nominal) + parseInt(cost) )
-      console.log(nominalSign)
+      console.log('out');
+      nominalSign = -(parseInt(nominal) + parseInt(cost));
+      console.log(nominalSign);
     } else {
       return response.status(400).json({
         status: 400,
@@ -111,96 +115,91 @@ module.exports = {
       });
     }
 
-    balanceModels.ppob(userId, opoType, nominalSign)
-    .then(result=>{
+    balanceModels
+      .ppob(userId, opoType, nominalSign)
+      .then(result => {
+        if (result.error) {
+          result.result['merchantId'] = merchantId;
+          result.result['saldoWillOut'] = parseInt(nominal) + parseInt(cost);
+          result.result['date'] = date;
+          response.status(400).json(result);
+        } else {
+          if (type === 'in') {
+            // data
+            const data = {
+              id,
+              merchant_id: merchantId,
+              user_id: userId,
+              total: nominal,
+              opo_type: opoType,
+              date,
+            };
 
-      if (result.error) {
-        result.result['merchantId'] = merchantId
-        result.result['saldoWillOut'] = parseInt(nominal) + parseInt(cost)
-        result.result['date'] = date
-        response.status(400).json(result)
-      } else {
-
-        if (type === 'in') {
-
-          // data
-          const data = {
-            id,
-            merchant_id: merchantId,
-            user_id: userId,
-            total: nominal,
-            opo_type: opoType,
-            date,
-          };
-
-          ppobinModels
-            .create(data)
-            .then(resultPpob => {
-              result.result['merchantId'] = merchantId
-              result.result['saldoIn'] = parseInt(nominal)
-              result.result['date'] = date
-              response.status(201).json(result);
-            })
-            .catch(errorPpob => {
-              response.status(400).json({
-                status: 400,
-                error: true,
-                message: 'Failed create a ppob in',
-                data: error,
+            ppobinModels
+              .create(data)
+              .then(resultPpob => {
+                result.result['merchantId'] = merchantId;
+                result.result['saldoIn'] = parseInt(nominal);
+                result.result['date'] = date;
+                response.status(201).json(result);
+              })
+              .catch(errorPpob => {
+                response.status(400).json({
+                  status: 400,
+                  error: true,
+                  message: 'Failed create a ppob in',
+                  data: error,
+                });
               });
-            });
-    
-        } else { // if out
+          } else {
+            // if out
 
-          // if (cost === undefined) {
-          //   cost = 0
-          // }
+            // if (cost === undefined) {
+            //   cost = 0
+            // }
 
-          // data
-          const data = {
-            id,
-            merchant_id: merchantId,
-            user_id: userId,
-            nominal,
-            cost,
-            total: parseInt(nominal) + parseInt(cost),
-            opo_type: opoType,
-            date,
-            transaction_type: transactionType,
-          };
+            // data
+            const data = {
+              id,
+              merchant_id: merchantId,
+              user_id: userId,
+              nominal,
+              cost,
+              total: parseInt(nominal) + parseInt(cost),
+              opo_type: opoType,
+              date,
+              transaction_type: transactionType,
+            };
 
-          ppoboutModels
-            .create(data)
-            .then(resultPpob => {
-              result.result['merchantId'] = merchantId
-              result.result['saldoOut'] = data.total //parseInt(nominal)
-              result.result['transactionType'] = transactionType
-              result.result['date'] = date
-              response.status(201).json(result);
-            })
-            .catch(errorPpob => {
-              response.status(400).json({
-                status: 400,
-                error: true,
-                message: 'Failed create a ppob out',
-                data: errorPpob,
+            ppoboutModels
+              .create(data)
+              .then(resultPpob => {
+                result.result['merchantId'] = merchantId;
+                result.result['saldoOut'] = data.total; //parseInt(nominal)
+                result.result['transactionType'] = transactionType;
+                result.result['date'] = date;
+                response.status(201).json(result);
+              })
+              .catch(errorPpob => {
+                response.status(400).json({
+                  status: 400,
+                  error: true,
+                  message: 'Failed create a ppob out',
+                  data: errorPpob,
+                });
               });
-            });
-
+          }
         }
-
-      }
-  
-    })
-    .catch(error=>{
-      console.log(error);
-      response.status(500).json({
-        status: 500,
-        error: true,
-        message: 'Internal server error',
-        result: {},
+      })
+      .catch(error => {
+        console.log(error);
+        response.status(500).json({
+          status: 500,
+          error: true,
+          message: 'Internal server error',
+          result: {},
+        });
       });
-    })
   },
 
   transfer: function(request, response) {
@@ -224,7 +223,7 @@ module.exports = {
 
     balanceModels
       .isEnough(userId, nominal)
-      .then(function(result) {
+      .then(result => {
         if (result.error) {
           response.status(400).json(result);
         } else {
@@ -244,7 +243,7 @@ module.exports = {
             });
         }
       })
-      .catch(function(error) {
+      .catch(error => {
         console.log(error);
         response.status(500).json({
           status: 500,

@@ -1,6 +1,7 @@
 const express = require('express');
+
 const Route = express.Router();
-const {check} = require('express-validator');
+const { check } = require('express-validator');
 
 const merchantController = require('../controllers/merchant');
 

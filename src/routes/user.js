@@ -1,7 +1,7 @@
 // import required dependencies
 const express = require('express');
 const Route = express.Router();
-const {check} = require('express-validator');
+const { check } = require('express-validator');
 
 // const { check, validationResult } = require('express-validator');
 
@@ -12,19 +12,18 @@ const isAuthHelper = require('../helpers/isAuth');
 
 console.log('route'); // where I am
 
-Route
-  .get('/get/:userId', isAuthHelper.getToken, userController.read)
+Route.get('/get/:userId', isAuthHelper.getToken, userController.read)
 
   .patch('/edit/:userId', isAuthHelper.getToken, userController.update) // imageUpload.single('photo'),
 
   .post('/login/step1', [check('phone').isMobilePhone()], userController.login1)
-  
+
   .post(
     '/login/step2',
     [
       check('securityCode')
         .isNumeric()
-        .isLength({min: 6, max: 6}),
+        .isLength({ min: 6, max: 6 }),
     ],
     userController.login2,
   )
@@ -34,7 +33,7 @@ Route
     [
       check('name')
         .matches(/^[A-Za-z\/\s\.,'-]+$/)
-        .isLength({min: 3}),
+        .isLength({ min: 3 }),
       check('phone').isMobilePhone(),
       check('email').isEmail(),
     ],
@@ -46,7 +45,7 @@ Route
     [
       check('securityCode')
         .isNumeric()
-        .isLength({min: 6, max: 6}),
+        .isLength({ min: 6, max: 6 }),
     ],
     userController.signup2,
   );

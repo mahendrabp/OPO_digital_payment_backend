@@ -8,18 +8,17 @@ const connection = require('../config/db');
 console.log('model'); // where I am
 
 module.exports = {
-
   read: function(userId) {
     return new Promise(function(resolve, reject) {
-      const query = `SELECT * FROM users INNER JOIN balances ON users.id = balances.user_id WHERE users.id = '${userId}'`
+      const query = `SELECT * FROM users INNER JOIN balances ON users.id = balances.user_id WHERE users.id = '${userId}'`;
       connection.query(query, function(error, result) {
         if (!error) {
-          resolve(result)
+          resolve(result);
         } else {
-          reject(error)
+          reject(error);
         }
-      })
-    })
+      });
+    });
   },
 
   updateUserValidation: function(key, updateData) {
@@ -62,10 +61,7 @@ module.exports = {
             });
           } else {
             const queryUpdate = `UPDATE users SET ? WHERE id = '${userId}'`;
-            connection.query(queryUpdate, [updateData], function(
-              error,
-              result,
-            ) {
+            connection.query(queryUpdate, [updateData], function(error, result) {
               if (!error) {
                 resolve(result);
               } else {
@@ -168,10 +164,7 @@ module.exports = {
             user_id: data_signup.id,
           };
           const queryBalances = 'INSERT INTO balances SET ?';
-          connection.query(queryBalances, init_balances, function(
-            error,
-            result,
-          ) {
+          connection.query(queryBalances, init_balances, function(error, result) {
             if (!error) {
               resolve(result);
             } else {
