@@ -64,14 +64,39 @@ SECRET_JWT = xxxx
 
 ## API Documentation
 
-### User
+### User OPO
 
-| Method | Endpoint | Description | Request Param       | Request Body   | Request Query |
-| ------ | -------- | ----------- | ------------------- | -------------- | ------------- |
-| GET    | /api/v1/ | Get         | -                   | -              | -             |
-| POST   | /api/v1/ | Create new  | -                   | `name`: STRING | -             |
-| GET    | /api/v1/ | Get one     | `id`: STRING (UUID) | -              | -             |
-| PUT    | /api/v1/ | Update      | `id`: STRING (UUID) | `name`: STRING | -             |
-| DELETE | /api/v1/ | Delete      | `id`: STRING (UUID) | -              | -             |
+| Method | Endpoint                  | Description | Request Param | Request Body                                                       |
+| ------ | ------------------------- | ----------- | ------------- | ------------------------------------------------------------------ |
+| GET    | /api/v1/user/get/:id      |             | `id` : UUID   | -                                                                  |
+| POST   | /api/v1/user/login/step1  |             | -             | `phone`: STRING,`email`: STRING,`name`: STRING,`securityCode`: INT |
+| POST   | /api/v1/user/login/step2  |             | -             | `phone`: STRING,`email`: STRING,`name`: STRING,`securityCode`: INT |
+| POST   | /api/v1/user/signup/step1 |             | -             | `phone`: STRING,`email`: STRING,`name`: STRING,`securityCode`: INT |
+| POST   | /api/v1/user/signup/step2 |             | -             | `phone`: STRING,`email`: STRING,`name`: STRING,`securityCode`: INT |
+| PATCH  | /api/v1/user/edit/:id     |             | `id` : UUID   | `phone`: STRING,`email`: STRING,`name`: STRING,`securityCode`: INT |
+
+### Balance
+
+| Method | Endpoint                     | Description | Request Param | Request Body                                                       |
+| ------ | ---------------------------- | ----------- | ------------- | ------------------------------------------------------------------ |
+| POST   | /api/v1/balance/transfer/:id |             | `id` : UUID   | `phone`: STRING,`email`: STRING,`name`: STRING,`securityCode`: INT |
+
+### PPOB
+
+| Method | Endpoint                     | Description | Request Param | Request Body                    |
+| ------ | ---------------------------- | ----------- | ------------- | ------------------------------- |
+| POST   | /api/v1/balance/ppob/in/:id  |             | `id` : UUID   | `nominal`:INT, `merchantId`:INT |
+| POST   | /api/v1/balance/ppob/out/:id |             | `id` : UUID   | `nominal`:INT, `merchantId`:INT |
+
+### Deal
+
+| Method | Endpoint                  | Description | Request Param   | Request Body                                                                                             |
+| ------ | ------------------------- | ----------- | --------------- | -------------------------------------------------------------------------------------------------------- |
+| GET    | /api/v1/deal/:id          |             | `id` : UUID     | -                                                                                                        |
+| GET    | /api/v1/deal/category/:id |             | `id` : ID       | -                                                                                                        |
+| GET    | /api/v1/deal/type/:type   |             | `type` : STRING | -                                                                                                        |
+| POST   | /api/v1/deal              |             | -               | `type`: STRING,`category_id`: INT,`merchant_id`: STRING,`title`: INT,`date_start`: DATE,`date_end`: DATE |
+| PATCH  | /api/v1/deal/             |             | -               | `type`: STRING,`category_id`: INT,`merchant_id`: STRING,`title`: INT,`date_start`: DATE,`date_end`: DATE |
+| DELETE | /api/v1/deal/:id          |             | `id` :UUID      |                                                                                                          |
 
 Copyright © 2019 by Cloverview Team
